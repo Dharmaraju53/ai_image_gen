@@ -7,24 +7,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Generate Social Media Post</h1>
-    <form id="websiteForm">
-      <input type="text" id="websiteUrl" placeholder="Enter Website URL" required>
-      <button type="submit">Generate Post</button>
-    </form>
-    <div id="content" class="hidden">
-      <p id="scrapedContent"></p>
-      <img id="generatedImage" class="hidden" src="" alt="Generated Post">
-    </div>
+  <h1>Enter Website URL</h1>
+  <form id="websiteForm">
+    <input type="text" id="websiteUrl" placeholder="Enter website URL" required>
+    <button type="submit">Generate Post</button>
+  </form>
+  <div id="content">
+    <!-- Scraped content will be shown here -->
   </div>
-  
+  <div id="imageContainer">
+    <!-- Generated image will be shown here -->
+  </div>
   <script>
     document.getElementById('websiteForm').onsubmit = async function(event) {
       event.preventDefault();
       const url = document.getElementById('websiteUrl').value;
 
-      // Step 1: Fetch the website content via scraper
       const response = await fetch('/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,26 +30,11 @@
       });
 
       const data = await response.json();
-      const contentDiv = document.getElementById('content');
-      const scrapedContentP = document.getElementById('scrapedContent');
-
-      // Display the scraped content
-      scrapedContentP.textContent = data.content;
-      contentDiv.classList.remove('hidden'); // Show content div
+      document.getElementById('content').innerHTML = `<p>${data.description}</p>`;
       
-      // Step 2: Generate the image using Bannerbear API
-      const imgResponse = await fetch('/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: data.content })
-      });
-      
-      const imgData = await imgResponse.json();
-      
-      // Step 3: Display the generated image
-      const imgElement = document.getElementById('generatedImage');
-      imgElement.src = imgData.imageUrl;
-      imgElement.classList.remove('hidden'); // Show the image
+      if (data.imageUrl) {
+        document.getElementById('imageContainer').innerHTML = `<img src="${data.imageUrl}" alt="Generated Image">`;
+      }
     }
   </script>
 </body>
